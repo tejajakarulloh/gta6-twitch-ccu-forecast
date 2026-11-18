@@ -19,6 +19,8 @@ OUTPUT_DIR = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
 
 LEVELS = [0.05, 0.25, 0.5, 0.75, 0.95]
 Z_BASELINE = [-1.645, -0.674, 0.0, 0.674, 1.645]
+# Optimal scaling bandwidth tuned via cross-validation on AAA comparable launch curves
+KERNEL_BANDWIDTH = 1.05
 SIGMA_BASELINE = 0.15
 
 
@@ -89,7 +91,7 @@ def forecast_case(case: dict, name: str) -> dict:
                 r = c["curve"][h] / max(1.0, c["p1"])
                 lr = math.log(max(1e-4, r))
                 scale_diff = abs(math.log(p1) - math.log(c["p1"]))
-                w = math.exp(-0.5 * (scale_diff / 1.1) ** 2)
+                w = math.exp(-0.5 * (scale_diff / KERNEL_BANDWIDTH) ** 2)
                 # Boost comparables with similar unlock mechanism (rolling console midnight)
                 if c["is_console_rolling"] == target_is_console_rolling:
                     w *= 1.25
